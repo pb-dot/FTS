@@ -28,5 +28,17 @@ The complete architecture of the system is illustrated in the image below. You c
 
 ![System Architecture](Readme_utils/system_architecture.png)
 
-## 🚀 Getting Started
+## 🚀 Features
+
+### 1. **Highly Available**
+   - No effect on the ongoing file tansfer if any one or more of the tftp servers(Layer-3) goes down
+   - No effect on the ongoing file transfer if any one of the Load Balancer goes down [immediately the other takes its place]
+
+### 2. **Highly Scalable**
+   - Can serve any number of Tftp clients simultaneously
+   - Can add any number of Tftp servers to the system
+
+### 3. **Highly Modular**
+   - Each instance of any Layer can be present on a unique IP
+   - Following Layered Architecture increases Modularity
 
