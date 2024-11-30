@@ -1,2 +1,1 @@
-# FTS --> 
-## Highly Available Distributed File Transfer System
+## Highly Available Distributed File Transfer System (FTS)
