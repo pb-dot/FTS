@@ -26,7 +26,7 @@ The project consists of the following key components:
 
 The complete architecture of the system is illustrated in the image below. You can find this image in the `Readme_utils` folder of this repository.
 
-![System Architecture](Readme_utils/system_architecture.png)
+![System Architecture](Readme_utils/architecture.png)
 
 ## 🚀 Features
 
@@ -42,3 +42,19 @@ The complete architecture of the system is illustrated in the image below. You c
    - Each instance of any Layer can be present on a unique IP
    - Following Layered Architecture increases Modularity
 
+## 🎥 Video Demonstrations
+
+You can view the system in action through the following videos:
+
+1. **Smooth File Transfer even on deliberately Killing one of the tftp server instance(Layer-3)**  
+   [![Load Balancer Working])](ReadMe_Utils/kill_Layer_3.mp4 "Click to watch the video")
+
+2. **Smooth File Transfer even on deliberately Killing one of the LoadBalancer instance(Layer-2)**   
+   [![Switch Emulator Working]](Readme_utils/kill_Layer_2.mp4 "Click to watch the video")
+
+3. **System in Action Without Layer-2**  
+   [![Minimalistic System Working]](Readme_utils/without_LB.mp4 "Click to watch the video")
+
+> ⚠️ To play these videos, download them from the repository and use a compatible media player.
+
+---
