@@ -18,13 +18,13 @@ The project consists of the following key components:
    - Simulates a switch that connects the clients, load balancer.
    - Switches between Active and Backup LoadBalancer.
 
-### 4. **TFTP Client (Layer-0)**
+### 4. **TFTP Client (Input-Layer)**
    - An Industry Standard TFTP client that interacts with the system to perform file transfers.
-   - **Note:** Users can either use the TFTP client provided in this repository or bring their own standard TFTP client.
+   - **Note:** Users can either use the TFTP client provided in this repository or bring their own standard TFTP client(run in octet mode).
 
 ## 🖼️ System Architecture
 
-The complete architecture of the system is illustrated in the image below. You can find this image in the `Readme_utils` folder of this repository.
+The complete architecture of the system is illustrated in the image below. You can find the detailed working explanation by  ![Clicking here](ReadMe_Utils/distributed_FTS_arch.pdf).
 
 ![System Architecture](ReadMe_Utils/architecture.png)
 
@@ -58,3 +58,32 @@ You can view the system in action through the following videos:
 > ⚠️ To play these videos, download them from the repository and use a compatible media player.
 
 ---
+
+##  Usage
+
+Each Project Components and their Instances can have Unique IP_Port combo but Layer-3 instances must have NFS(For fault tolerable TFTP write) 
+
+1. **To Exe the Tftp-client (Input Layer)**
+   -  cd Tftp_client folder(downloaded from here) and then do make (creates the build folder)
+   -  Make a "Demo" folder at same level at build folder and keep the files for transfer here
+   -  Then do cd ./build
+   -  ./client_exe <SW_IP> <SW_Port> <r/w> ; r for reading files from server and w to write to server
+   -  Then it will ask for file Name give ../Demo/fileName
+
+2. **To Exe the Switch Emulator (Layer -1)**
+   -  cd sw_emul folder(downloaded from here) and then do make (creates the build folder)
+   -  Make a config.txt file at same level at build folder (press ./build/sw_exe enter to see format of config file)
+   -  Then do cd ./build
+   -  ./sw_exe <SW_PORT> <config_File_PAth>
+
+3. **To Exe the Load Balancer (Layer-2)**
+   -  cd LoadBalancer folder(downloaded from here) and then do make (creates the build folder)
+   -  Make a config.txt file at same level at build folder (press ./build/lb_exe enter to see format of config file)
+   -  Then do cd ./build
+   -  ./lb_exe <lb_PORT> <config_File_PAth>
+
+4. **To Exe the Tftp-server (Layer -3)**
+   -  cd Tftp_server folder(downloaded from here) and then do make (creates the build folder)
+   -  Make a "Demo" folder at same level at build folder and keep the files for transfer here
+   -  Then do cd ./build
+   -  ./server_exe <Server_Port>
