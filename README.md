@@ -2,6 +2,12 @@
 
 This project implements a **Highly Available Distributed File Transfer System** that ensures efficient and reliable file transfers through *Tftp*. The system is designed with a layered architecture for modularity and scalability.
 
+## 🖼️ System Architecture
+
+The complete architecture of the system is illustrated in the image below. You can find the detailed working explanation by  [Clicking here](ReadMe_Utils/distributed_FTS_arch.pdf).
+
+![System Architecture](ReadMe_Utils/architecture.png)
+
 ## 📂 Project Components
 
 The project consists of the following key components:
@@ -22,11 +28,6 @@ The project consists of the following key components:
    - An Industry Standard TFTP client that interacts with the system to perform file transfers.
    - **Note:** Users can either use the TFTP client provided in this repository or bring their own standard TFTP client(run in octet mode).
 
-## 🖼️ System Architecture
-
-The complete architecture of the system is illustrated in the image below. You can find the detailed working explanation by  ![Clicking here](ReadMe_Utils/distributed_FTS_arch.pdf).
-
-![System Architecture](ReadMe_Utils/architecture.png)
 
 ## 🚀 Features
 
@@ -41,6 +42,7 @@ The complete architecture of the system is illustrated in the image below. You c
 ### 3. **Highly Modular**
    - Each instance of any Layer can be present on a unique IP
    - Following Layered Architecture increases Modularity
+
 
 ## 🎥 Video Demonstrations
 
