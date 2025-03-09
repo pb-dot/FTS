@@ -51,13 +51,25 @@ You can view the system in action through the following videos:
 1. **Smooth File Transfer even on deliberately Killing one of the tftp server instance(Layer-3)**  
    [![Load Balancer Working])](ReadMe_Utils/kill_Layer_3.mp4 "Click to watch the video")
 
+<a href="https://youtu.be/yUSe6PPlHAg">
+    <img src="https://img.youtube.com/vi/yUSe6PPlHAg/maxresdefault.jpg" alt="Watch the video" width="600">
+  </a>
+
 2. **Smooth File Transfer even on deliberately Killing one of the LoadBalancer instance(Layer-2)**   
    [![Switch Emulator Working]](ReadMe_Utils/kill_Layer_2.mp4 "Click to watch the video")
+
+<a href="https://youtu.be/LsVF1FofooA">
+  <img src="https://img.youtube.com/vi/LsVF1FofooA/maxresdefault.jpg" alt="Watch the video" width="600">
+</a>
 
 3. **System in Action Without Layer-2**  
    [![Minimalistic System Working]](ReadMe_Utils/without_LB.mp4 "Click to watch the video")
 
-> ⚠️ To play these videos, download them from the repository and use a compatible media player.
+<a href="https://youtu.be/WzIimclIdTI">
+  <img src="https://img.youtube.com/vi/WzIimclIdTI/maxresdefault.jpg" alt="Watch the video" width="600">
+</a>
+
+> ⚠️ To play these videos, download them from the repository and use a compatible media player or Watch on Youtube
 
 ---
 
