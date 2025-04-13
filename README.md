@@ -101,3 +101,12 @@ Each Project Components and their Instances can have Unique IP_Port combo but La
    -  Make a "Demo" folder at same level at build folder and keep the files for transfer here
    -  Then do cd ./build
    -  ./server_exe <Server_Port>
+  
+
+
+## Distribution Using Debian Package :-
+
+1. Download the FTS.deb from here
+2. sudo apt install ./FTS.deb #to install
+3. sudo apt purge  FTS #to uninstall
+4. Package Downloaded and Setup at /opt/FTS check Readme_User.md there
