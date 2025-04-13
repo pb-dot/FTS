@@ -1,14 +1,14 @@
 # Compiler and flags
-CXX := g++
-CXXFLAGS := -Wall -Iinclude -MMD -MP  # Add flags for dependency generation
+CXX := gcc
+CXXFLAGS := -Wall -Iinclude -MMD -MP -O3  # Add flags for dependency generation
 BUILD_DIR := build
 SRC_DIR := src
 TARGET := $(BUILD_DIR)/client_exe
 
 # Find all .cpp files in src directory and its subdirectories
-SRC_FILES := $(shell find $(SRC_DIR) -name '*.cpp')
+SRC_FILES := $(shell find $(SRC_DIR) -name '*.c')
 # Create corresponding .o file paths in the build directory
-OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRC_FILES))
+OBJ_FILES := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC_FILES))
 DEP_FILES := $(OBJ_FILES:.o=.d)  # Corresponding .d files
 
 # Default rule
@@ -19,8 +19,8 @@ $(TARGET): $(OBJ_FILES)
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-# Rule to compile each .cpp file into a .o file in the build directory
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+# Rule to compile each .c file into a .o file in the build directory
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 

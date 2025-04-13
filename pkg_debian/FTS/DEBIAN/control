@@ -1,0 +1,8 @@
+Package: FTS
+Version: 1.0.0-1
+Architecture: amd64
+Maintainer: pb-dot
+Description: Highly Avaiable File Transfer Suite
+ A suite of tools for file transfer using  UDP + tftp protocol.
+ Includes a Server, Client, load balancer, and a Switch.
+Provides: FTS
