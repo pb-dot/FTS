@@ -12,7 +12,7 @@
 
 #define MAXSIZE 1024
 
-#define Timeout 10
+#define Timeout 1
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
@@ -63,7 +63,3 @@ void handle_writeReq_server(int sockfd,const struct sockaddr_in ca, socklen_t ca
 //send data from server to client (read req)
 void handle_readReq_client(int sockfd,const struct sockaddr_in sa, socklen_t sa_len);
 void handle_readReq_server(int sockfd,const struct sockaddr_in ca, socklen_t ca_len,unsigned char *buffer,RRQ_WRQ_Packet rd_wr);
-
-
-
-

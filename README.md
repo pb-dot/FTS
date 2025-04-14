@@ -100,7 +100,8 @@ Each Project Components and their Instances can have Unique IP_Port combo but La
    -  cd Tftp_server folder(downloaded from here) and then do make (creates the build folder)
    -  Make a "Demo" folder at same level at build folder and keep the files for transfer here
    -  Then do cd ./build
-   -  ./server_exe <Server_Port>
+   -  ./server_exe <Server_Port> #run without Logger Or,
+   -  LOG_ON=1 ./server_exe <Server_Port> #run with Logger
   
 
 

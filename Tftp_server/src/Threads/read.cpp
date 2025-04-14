@@ -1,5 +1,6 @@
 #include "globals.hpp"
 #include "packets.hpp"
+#include "Logger.hpp"
 
 
 std::tuple<std::string, std::string , const unsigned char * , int> extractPrefix(const unsigned char* data) {
@@ -16,7 +17,7 @@ std::tuple<std::string, std::string , const unsigned char * , int> extractPrefix
     std::string fileName(ptr);
     pad+=fileName.size() + 1;
     ptr += fileName.size() + 1; // Move pointer past the FileName and '\0'
-    
+
 
     return {id, fileName ,reinterpret_cast<const unsigned char*>(ptr),pad};
 }
@@ -59,14 +60,14 @@ void reader_thread(int sockfd){
         } else {
             mtx_cli_addr.lock();
             client_len = sizeof(client_addr);
-            received_bytes = recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr*)&client_addr, &client_len);            
+            received_bytes = recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr*)&client_addr, &client_len);
             mtx_cli_addr.unlock();
             check_err(received_bytes,"recvfrom failed");
             buffer[received_bytes] = '\0';  // Null-terminate the received data
         }
-        
+
         //read from socket finished
-        
+
         // //debug:
         // std::cout<<"Just Recv a packet = \n";
         // for (int i =0; i<received_bytes;++i) {
@@ -80,13 +81,13 @@ void reader_thread(int sockfd){
         //tftp is the  ptr to start of std tftp packet
 
         //debug::
-        std::cout<<" Result of Extarction:-\n Rceived the packet from "<<client_key<<"\n";
-        std::cout<<" prefix_pad_size = "<<prefix_pad<<" fileName = "<<fileName<<"\n";
-        std::cout<<"Printing the  Tftp  extract\n";
-        for (int i =0; i<received_bytes-prefix_pad;++i) {
-            printf("%02X ", tftp[i]);
-        }
-        std::cout << "\n";
+        // std::cout<<" Result of Extarction:-\n Rceived the packet from "<<client_key<<"\n";
+        // std::cout<<" prefix_pad_size = "<<prefix_pad<<" fileName = "<<fileName<<"\n";
+        // std::cout<<"Printing the  Tftp  extract\n";
+        // for (int i =0; i<received_bytes-prefix_pad;++i) {
+        //     printf("%02X ", tftp[i]);
+        // }
+        // std::cout << "\n";
 
 
         //initialising the context[client_id v/s curr_blk]
@@ -95,14 +96,14 @@ void reader_thread(int sockfd){
             client_context[client_key]=-1;// setting current block to -1;
         }
         mtx_context.unlock();
-        
+
 
         // decode the received tftp packet
         switch(tftp[1]){
             case 0x01: // Read Packet
             case 0x02: // Write Packet
             {
-                    
+
                     // create job for Work Queue
                     job thejob;
                     if(tftp[1] == 0x01) thejob.type = 'R';
@@ -113,8 +114,8 @@ void reader_thread(int sockfd){
                     thejob.fileName = fileName;
                     thejob.message ="";
                     thejob.timestamp = std::chrono::steady_clock::time_point::min();
-                   
-                    // update the global data structure client_context                        
+
+                    // update the global data structure client_context
                     mtx_context.lock();
                     // if 1st read/wr mssg from client (then curr_block should be -1 and thejob.blk =0)
                     if(thejob.block_num > client_context[client_key]){
@@ -128,11 +129,11 @@ void reader_thread(int sockfd){
                         }
 
                         //debug:
-                        std::cout<<"Inside Reader Thread Added R/W job to workQ\n";
+                        LOG("Recv RD/WR packet Blk Num = 0\n");
                     }
                     else{
-                        mtx_context.unlock(); 
-                        // context for client_key exists and recv is RD/WR 
+                        mtx_context.unlock();
+                        // context for client_key exists and recv is RD/WR
                         //=> duplicate mssg from client recived
                     }
 
@@ -147,16 +148,16 @@ void reader_thread(int sockfd){
                     thejob.type ='D';
                     thejob.block_num = data_packet.block_number;
                     thejob.client_id = client_key;
-                    thejob.fileName =  fileName;                   
+                    thejob.fileName =  fileName;
                     thejob.message = std::string(data_packet.data);
                     thejob.mssg_size = data_packet.data_size;
                     thejob.timestamp = std::chrono::steady_clock::time_point::min();
-                
-                    // the global data structure:- access client_context | update TimerQ WorkQ                                      
+
+                    // the global data structure:- access client_context | update TimerQ WorkQ
                     mtx_context.lock();
                     //recv block_num > present block_num  ==> new block recv
                     if(thejob.block_num > client_context[client_key]){
-                        
+
                         //update  client_Context
                         client_context[client_key] = thejob.block_num;
                         mtx_context.unlock();
@@ -166,7 +167,9 @@ void reader_thread(int sockfd){
                         WorkQ.push_back(thejob);}
 
                         //debug:
-                        std::cout<<"Inside Reader Thread Added D job to workQ\n";
+                        LOG("Recv Data packet Blk Num = ",thejob.block_num,"\n");
+                        if(thejob.mssg_size < 512)
+                            LOG("Recv Final Data Packet Blk Num = ",thejob.block_num,"\n");
 
                         {// [Remove entry from timer if new mssg recev before timer expire]
                         std::lock_guard<std::mutex> lock3(mtx_Timer);
@@ -181,7 +184,7 @@ void reader_thread(int sockfd){
                         mtx_context.unlock();
                         // The message received is a repeated one : do nothing
                     }
-                         
+
                     //std::cout<<"Inside Read Thread : D case release lock\n";
                     //cleanup:
                     free(data_packet.data);
@@ -192,7 +195,7 @@ void reader_thread(int sockfd){
             case 0x04:
             {
                     ACK_Packet the_ack_packet = extract_ack_packet(tftp);
-                    
+
                     // create job for Work Queue;
                     job thejob;
                     thejob.type ='A';
@@ -202,14 +205,14 @@ void reader_thread(int sockfd){
                     thejob.message = "";
                     thejob.mssg_size = 0;
                     thejob.timestamp = std::chrono::steady_clock::time_point::min();
-                    
-                    // the global data structure:- access client_context | update TimerQ WorkQ 
+
+                    // the global data structure:- access client_context | update TimerQ WorkQ
 
                     mtx_context.lock();
 
                     //recv block_num > present block_num  ==> new block recv
                     if(thejob.block_num > client_context[client_key]){
-                        
+
                         //update  client_Context
                         client_context[client_key] = thejob.block_num;
                         mtx_context.unlock();
@@ -219,7 +222,7 @@ void reader_thread(int sockfd){
                         WorkQ.push_back(thejob);}
 
                         //debug:
-                        std::cout<<"Inside Reader Thread Added A job to workQ\n";
+                        LOG("Recv ACK = ",thejob.block_num,"\n");
 
                         {// [Remove entry from timer if new mssg recev before timer expire]
                         std::lock_guard<std::mutex> lock3(mtx_Timer);
@@ -234,17 +237,17 @@ void reader_thread(int sockfd){
                         mtx_context.unlock();
                         // The message received is a repeated one : do nothing
                     }
-                    
+
             }
                     break;
             case 0x05:
-                    std::cout<<"Received error message from client\n";
+                    LOG("Received error message from client\n");
                     break;
             default :
-                    std::cout<<" Received Wrong Packet Opcode\n";
+                    LOG(" Received Wrong Packet Opcode\n");
                     exit(0);
         }
-        
+
         cv_work.notify_one(); // notifies the frwd thread that WorQ has data
 
     }// inf looping while(true)

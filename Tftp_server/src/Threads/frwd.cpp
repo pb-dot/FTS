@@ -1,5 +1,6 @@
 #include "globals.hpp"
 #include "packets.hpp"
+#include "Logger.hpp"
 
 std::pair<unsigned char*,size_t> readFileBlock(const std::string& fileName, int block_num, const std::string& mode) {
     // Determine the file opening mode based on the input "mode"
@@ -13,7 +14,7 @@ std::pair<unsigned char*,size_t> readFileBlock(const std::string& fileName, int 
     }
 
     //std::cout<<"File size is "<<ftell(file) << " fileMode "<<fileMode<<" fileName = "<< fileName.c_str()<<"\n";
-    
+
     // Calculate the offset and seek to that position in the file
     long offset = block_num * 512;
     if (fseek(file, offset, SEEK_SET) != 0) {
@@ -37,7 +38,7 @@ std::pair<unsigned char*,size_t> readFileBlock(const std::string& fileName, int 
 
     // Go back to the original position after checking file size
     fseek(file, currentPos, SEEK_SET);
-    
+
     // Allocate memory for reading 512 bytes
     unsigned char* buffer = new unsigned char[512];
     std::memset(buffer, 0, 512);  // Initialize buffer with 0
@@ -78,7 +79,7 @@ void frwd_thread(int sockfd){
     job thejob;
 
     while(true){
-        
+
         // Remove front job from the Work Q
         {
             std::unique_lock<std::mutex> lock2(mtx_WorkQ);
@@ -90,7 +91,7 @@ void frwd_thread(int sockfd){
 
         //debug lines
         std::cout<<"Inside Frwd Thread After Extract Job\n";
-        thejob.display_job();
+        //thejob.display_job();
 
         //process the job
         if(thejob.resend == true){ // this job is pushed from timerQ to WorkQ
@@ -104,20 +105,21 @@ void frwd_thread(int sockfd){
             check_err(sent_bytes,"sendto failed");
 
             //debug:
-            std::cout<<"Inside Frwd Thread Just Resent the packet\n";
+            //std::cout<<"Inside Frwd Thread Just Resent the packet\n";
+            LOG("Timeout Resend Blk Num = ",thejob.block_num,"\n");
 
             //building the job for timer thread
-            thejob.timestamp = sent_timestamp;                        
+            thejob.timestamp = sent_timestamp;
 
         }
         else{ // this job is from the read thread [I have to built packet based on job type]
 
             switch(thejob.type){
                 case 'R': // recv R req from client ==> send 0th offset data block(blk_num =1) to client
-                {                    
+                {
                     // prepare packet to be sent
                     auto temp = readFileBlock(thejob.fileName,0,"octet");
-                    
+
                     size_t data_size = temp.second;
                     if(data_size == 0){
                         // reached the end of file ==> Ack recv is the final Ack
@@ -134,18 +136,19 @@ void frwd_thread(int sockfd){
                     check_err(sent_bytes,"sendto failed");
 
                     //debug:
-                    std::cout<<"Inside Frwd Thread Just Sent Data of block1  in response to Read\n";
+                    //std::cout<<"Inside Frwd Thread Just Sent Data of block1  in response to Read\n";
+                    LOG("Sent Blk Num = ",1,"\n");
 
                     //building the job for timer thread
                     thejob.message = std::string(reinterpret_cast<char*>(packet), p_size);
                     thejob.mssg_size = p_size;
                     thejob.timestamp = sent_timestamp;
-                    
+
                     free(packet);
                 }
                     break;
                 case 'W': // recv W req from client| send Ack 0 to client;
-                {                        
+                {
                     // prepare packet to be sent
                     auto [packet,p_size] = build_ack_packet(thejob.client_id,0);
 
@@ -157,15 +160,16 @@ void frwd_thread(int sockfd){
                     check_err(sent_bytes,"sendto failed");
 
                     //debug:
-                    std::cout<<"Inside Frwd Thread Just Sent Ack 0  in response to Write\n";
-                    
+                    //std::cout<<"Inside Frwd Thread Just Sent Ack 0  in response to Write\n";
+                    LOG("Sent ACK = ",0,"\n");
+
                     //building the job for timer thread
                     thejob.message = std::string(reinterpret_cast<char*>(packet),p_size);
                     thejob.mssg_size = p_size;
                     thejob.timestamp = sent_timestamp;
 
                     free(packet);
-                        
+
                 }
                     break;
                 case 'D': // recved Data ==> Client is writing | save this data in file at offset blk-1 and send Ack of blk
@@ -184,8 +188,9 @@ void frwd_thread(int sockfd){
                     check_err(sent_bytes,"sendto failed");
 
                     //debug:
-                    std::cout<<"Inside Frwd Thread Just Sent Ack for "<<thejob.block_num<<" th packet\n";
-                    
+                    //std::cout<<"Inside Frwd Thread Just Sent Ack for "<<thejob.block_num<<" th packet\n";
+                    LOG("Sent ACK = ",thejob.block_num,"\n");
+
                     //building the job for timer thread
                     thejob.message = std::string(reinterpret_cast<char*>(packet),p_size);
                     thejob.mssg_size = p_size;
@@ -215,15 +220,17 @@ void frwd_thread(int sockfd){
                     check_err(sent_bytes,"sendto failed");
 
                     //debug:
-                    std::cout<<"Inside Frwd Thread Just Sent Data for "<<thejob.block_num+1<<" th packet\n";
-                    
+                    //std::cout<<"Inside Frwd Thread Just Sent Data for "<<thejob.block_num+1<<" th packet\n";
+                    LOG("Sent Blk Num = ",thejob.block_num+1,"\n");
+                    if(data_size < 512)
+                        LOG("Sent Final Data Packet Blk Num = ",thejob.block_num+1,"\n");
 
                     //building the job for timer thread
                     thejob.message = std::string(reinterpret_cast<char*>(packet), p_size);
                     thejob.mssg_size = p_size;
                     thejob.timestamp = sent_timestamp;
 
-                    free(packet);                    
+                    free(packet);
                 }
                     break;
                 case 'E': // recv error mssg
@@ -232,10 +239,10 @@ void frwd_thread(int sockfd){
                     std::cout<<" Received Wrong Packet Opcode\n";
                     exit(0);
             }
-      
+
 
         }
-  
+
         //updating the TimerQ;
         {
             std::lock_guard<std::mutex> lock(mtx_Timer);

@@ -18,7 +18,8 @@
 
 2. As per example setup Follow the below order(top 2 bottom) strictly <br>
 
-        1st Terminal cd inside Server/build& run>  runServer  <Server_Port>
+        1st Terminal cd inside Server/build& run>  runServer  <Server_Port>  
+        [Or do LOG_ON=1 runServer <Server_Port> #to enable logging]
         2nd Terminal cd inside LoadBalancer/build& run>  runLB <lb_PORT> <config_File_PAth>
         3rd Terminal cd inside Switch/build& run>  runSwitch <SW_PORT> <config_File_PAth>
         4th Terminal cd inside Client/build& run>  runCLI <SW_IP> <SW_Port> <r/w> 
