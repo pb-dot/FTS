@@ -1,4 +1,4 @@
-# Highly Available Distributed Tftp File Transfer System (FTS)
+# Highly Available Distributed Tftp File Transfer System (FaultTolerantTFTPCluster)
 
 This project implements a **Highly Available Distributed File Transfer System** that ensures efficient and reliable file transfers through *Tftp*. The system is designed with a layered architecture for modularity and scalability.
 
